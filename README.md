@@ -23,78 +23,275 @@ The Food Analyzer application enables users to upload food images and receive de
 
 ## System Architecture
 
+### High-Level Architecture Diagram
+
 ```mermaid
 graph TB
-    subgraph "Client Layer"
-        UI[Web Interface]
-        UF[File Upload]
-        UD[Data Display]
+    subgraph "Device Layer"
+        subgraph "Mobile Devices"
+            MOB[Mobile Browsers]
+            CAM[Camera Integration]
+            TOUCH[Touch Interface]
+        end
+        
+        subgraph "Desktop Devices"
+            DESK[Desktop Browsers]
+            FILE[File System Access]
+            MOUSE[Mouse/Keyboard Interface]
+        end
+        
+        subgraph "Tablet Devices"
+            TAB[Tablet Browsers]
+            HYBRID[Hybrid Input Methods]
+            ORIENT[Orientation Support]
+        end
     end
     
-    subgraph "Application Layer"
-        FS[Flask Server]
-        RT[Request Router]
-        FH[File Handler]
-        VL[Validation Layer]
+    subgraph "Network Layer"
+        HTTP[HTTP/HTTPS Protocol]
+        SSL[SSL/TLS Encryption]
+        CORS[CORS Handling]
+        COMPRESS[Response Compression]
     end
     
-    subgraph "Processing Layer"
-        IP[Image Processor]
-        B64[Base64 Converter]
-        JP[JSON Parser]
-        DV[Data Validator]
+    subgraph "Frontend Layer"
+        subgraph "Responsive UI Components"
+            RUI[Responsive Web Interface]
+            MEDIA[Media Queries]
+            FLEX[Flexbox/Grid Layout]
+            VIEWPORT[Viewport Adaptation]
+        end
+        
+        subgraph "Interactive Elements"
+            UPLOAD[File Upload Component]
+            DRAG[Drag & Drop Interface]
+            PREVIEW[Image Preview]
+            RESULTS[Results Display]
+            HISTORY[History Browser]
+        end
+        
+        subgraph "Client-Side Processing"
+            VALIDATE[Client Validation]
+            RESIZE[Image Resizing]
+            FORMAT[Format Detection]
+            PROGRESS[Upload Progress]
+        end
     end
     
-    subgraph "AI Service Layer"
-        GM[Gemini AI Model]
-        API[Google Generative AI]
-        NLP[Natural Language Processing]
-        CV[Computer Vision]
+    subgraph "Backend Application Layer"
+        subgraph "Flask Web Server"
+            ROUTER[URL Routing]
+            MIDDLEWARE[Request Middleware]
+            SESSION[Session Management]
+            ERROR[Error Handling]
+        end
+        
+        subgraph "Request Processing"
+            FILEHANDLER[File Upload Handler]
+            VALIDATOR[Server-side Validation]
+            SECURITY[Security Checks]
+            LIMITER[Rate Limiting]
+        end
+        
+        subgraph "Response Management"
+            SERIALIZER[JSON Serialization]
+            TEMPLATE[Template Rendering]
+            CACHE[Response Caching]
+            COMPRESS_RESP[Response Compression]
+        end
     end
     
-    subgraph "Data Layer"
-        MDB[(MongoDB)]
-        FC[Food Collection]
-        IDX[Indexes]
+    subgraph "Image Processing Pipeline"
+        RECEIVER[Image Receiver]
+        CONVERTER[Format Converter]
+        OPTIMIZER[Image Optimizer]
+        BASE64[Base64 Encoder]
+        METADATA[Metadata Extractor]
+    end
+    
+    subgraph "AI Analysis Engine"
+        subgraph "Google Gemini Integration"
+            GEMINI[Gemini 1.5 Flash Model]
+            VISION[Computer Vision API]
+            NLP[Natural Language Processing]
+            PROMPT[Prompt Engineering]
+        end
+        
+        subgraph "Analysis Pipeline"
+            RECOGNITION[Food Recognition]
+            NUTRITION[Nutritional Analysis]
+            BENEFITS[Health Benefits Analysis]
+            ALLERGEN[Allergen Detection]
+            CLASSIFICATION[Dietary Classification]
+        end
+        
+        subgraph "Response Processing"
+            PARSER[JSON Response Parser]
+            EXTRACTOR[Data Extractor]
+            VALIDATOR_AI[AI Response Validator]
+            FALLBACK[Fallback Handler]
+        end
+    end
+    
+    subgraph "Data Persistence Layer"
+        subgraph "MongoDB Cluster"
+            PRIMARY[(Primary Database)]
+            REPLICA[(Replica Set)]
+            INDEXES[(Compound Indexes)]
+        end
+        
+        subgraph "Data Operations"
+            INSERT[Document Insertion]
+            QUERY[Query Processing]
+            UPDATE[Data Updates]
+            DELETE[Data Deletion]
+            AGGREGATE[Aggregation Pipeline]
+        end
+        
+        subgraph "Storage Management"
+            GRIDFS[GridFS for Large Files]
+            COMPRESSION[Data Compression]
+            BACKUP[Automated Backups]
+            ARCHIVAL[Data Archival]
+        end
     end
     
     subgraph "External Services"
-        GAI[Google AI Platform]
-        CDN[Content Delivery]
+        subgraph "Google Cloud Platform"
+            AI_API[Generative AI API]
+            QUOTA[API Quota Management]
+            MONITORING[Service Monitoring]
+        end
+        
+        subgraph "CDN & Static Assets"
+            STATIC[Static File Serving]
+            ASSETS[Asset Optimization]
+            DELIVERY[Content Delivery]
+        end
     end
     
-    UI --> FS
-    UF --> FH
-    UD --> RT
+    subgraph "Monitoring & Analytics"
+        LOGS[Application Logging]
+        METRICS[Performance Metrics]
+        ALERTS[Error Alerting]
+        ANALYTICS[Usage Analytics]
+    end
     
-    FS --> RT
-    RT --> FH
-    RT --> VL
+    %% Device to Network Connections
+    MOB --> HTTP
+    DESK --> HTTP
+    TAB --> HTTP
+    CAM --> UPLOAD
+    FILE --> UPLOAD
+    HYBRID --> UPLOAD
     
-    FH --> IP
-    IP --> B64
-    B64 --> GM
+    %% Network to Frontend
+    HTTP --> RUI
+    SSL --> RUI
+    CORS --> RUI
     
-    GM --> API
-    API --> GAI
-    GAI --> NLP
-    GAI --> CV
+    %% Frontend Internal Connections
+    RUI --> MEDIA
+    RUI --> FLEX
+    RUI --> VIEWPORT
+    UPLOAD --> DRAG
+    UPLOAD --> PREVIEW
+    VALIDATE --> FORMAT
+    RESIZE --> PROGRESS
     
-    API --> JP
-    JP --> DV
-    DV --> MDB
+    %% Frontend to Backend
+    UPLOAD --> ROUTER
+    VALIDATE --> VALIDATOR
+    DRAG --> FILEHANDLER
     
-    MDB --> FC
-    FC --> IDX
+    %% Backend Processing Flow
+    ROUTER --> MIDDLEWARE
+    MIDDLEWARE --> SESSION
+    FILEHANDLER --> SECURITY
+    VALIDATOR --> LIMITER
     
-    FS --> MDB
+    %% Image Processing Flow
+    FILEHANDLER --> RECEIVER
+    RECEIVER --> CONVERTER
+    CONVERTER --> OPTIMIZER
+    OPTIMIZER --> BASE64
+    BASE64 --> METADATA
     
-    style UI fill:#e1f5fe
-    style FS fill:#f3e5f5
-    style GM fill:#fff3e0
-    style MDB fill:#e8f5e8
-    style GAI fill:#fce4ec
+    %% AI Analysis Flow
+    BASE64 --> GEMINI
+    METADATA --> PROMPT
+    GEMINI --> VISION
+    VISION --> RECOGNITION
+    RECOGNITION --> NUTRITION
+    NUTRITION --> BENEFITS
+    BENEFITS --> ALLERGEN
+    ALLERGEN --> CLASSIFICATION
+    
+    %% AI Response Processing
+    CLASSIFICATION --> PARSER
+    PARSER --> EXTRACTOR
+    EXTRACTOR --> VALIDATOR_AI
+    VALIDATOR_AI --> FALLBACK
+    
+    %% Data Persistence Flow
+    VALIDATOR_AI --> INSERT
+    INSERT --> PRIMARY
+    PRIMARY --> REPLICA
+    REPLICA --> INDEXES
+    
+    %% Response Generation
+    PRIMARY --> QUERY
+    QUERY --> SERIALIZER
+    SERIALIZER --> TEMPLATE
+    TEMPLATE --> CACHE
+    
+    %% External Service Integration
+    GEMINI --> AI_API
+    AI_API --> QUOTA
+    QUOTA --> MONITORING
+    TEMPLATE --> STATIC
+    STATIC --> ASSETS
+    ASSETS --> DELIVERY
+    
+    %% Monitoring Integration
+    ERROR --> LOGS
+    ROUTER --> METRICS
+    LIMITER --> ALERTS
+    SESSION --> ANALYTICS
+    
+    %% Responsive Design Adaptations
+    MEDIA -.-> MOB
+    MEDIA -.-> TAB
+    MEDIA -.-> DESK
+    VIEWPORT -.-> ORIENT
+    FLEX -.-> TOUCH
+    
+    %% Data Backup and Recovery
+    PRIMARY --> BACKUP
+    BACKUP --> ARCHIVAL
+    GRIDFS --> COMPRESSION
+    
+    style MOB fill:#e3f2fd
+    style DESK fill:#e3f2fd
+    style TAB fill:#e3f2fd
+    style RUI fill:#f3e5f5
+    style GEMINI fill:#fff3e0
+    style PRIMARY fill:#e8f5e8
+    style AI_API fill:#fce4ec
+    style LOGS fill:#fff8e1
 ```
+
+### Device Compatibility Matrix
+
+| Feature | Mobile | Tablet | Desktop | Implementation |
+|---------|--------|--------|---------|----------------|
+| Image Upload | Camera + Gallery | Camera + Files | File System | HTML5 File API |
+| Touch Interface | Native Touch | Native Touch | Mouse Events | Touch/Mouse Event Handling |
+| Responsive Layout | Vertical Stack | Adaptive Grid | Full Layout | CSS Media Queries |
+| Image Preview | Optimized Size | Medium Size | Full Size | Responsive Images |
+| Navigation | Bottom Nav | Side/Top Nav | Top Navigation | Adaptive Navigation |
+| Data Display | Cards/Lists | Grid Layout | Table + Cards | Responsive Components |
+| Offline Support | Service Worker | Service Worker | Browser Cache | Progressive Web App |
 
 ## Features
 
