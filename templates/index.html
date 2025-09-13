@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Analyzer - Professional Nutrition Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .upload-section {
+            padding: 50px;
+            text-align: center;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 80px 30px;
+            margin: 30px 0;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            background: linear-gradient(45deg, #f8f9ff 0%, #e8f0ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(45deg, #f0f8ff 0%, #e0f0ff 100%);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.2);
+        }
+        
+        .upload-area:hover::before {
+            left: 100%;
+        }
+        
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: linear-gradient(45deg, #e8f5e8 0%, #f0fff0 100%);
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .upload-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+        
+        .upload-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .loading {
+            display: none;
+            margin: 40px 0;
+            padding: 40px;
+            background: linear-gradient(45deg, #f8f9ff 0%, #e8f0ff 100%);
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        
+        .loading-subtext {
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        .results {
+            display: none;
+            padding: 50px;
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .food-image {
+            max-width: 350px;
+            max-height: 350px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            margin: 0 auto 30px;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+        
+        .food-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .info-table th,
+        .info-table td {
+            padding: 18px 25px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .info-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-table tr:nth-child(even) {
+            background: linear-gradient(45deg, #f8f9ff 0%, #f0f8ff 100%);
+        }
+        
+        .info-table tr:hover {
+            background: linear-gradient(45deg, #e8f0ff 0%, #e0e8ff 100%);
+            transform: translateX(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .section-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            font-weight: 700 !important;
+            font-size: 1.2em !important;
+            text-align: center !important;
+        }
+        
+        .info-table td strong {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .info-table ul {
+            margin: 0;
+            padding-left: 25px;
+        }
+        
+        .info-table li {
+            margin: 8px 0;
+            position: relative;
+        }
+        
+        .info-table li::before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            position: absolute;
+            left: -20px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background: linear-gradient(45deg, #ffeaea 0%, #ffe0e0 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 5px solid #e74c3c;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .success {
+            color: #27ae60;
+            background: linear-gradient(45deg, #eafaf1 0%, #e0f8e0 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 5px solid #27ae60;
+        }
+        
+        .reset-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 25px 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3);
+        }
+        
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(231, 76, 60, 0.4);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: progressAnimation 2s ease-in-out infinite;
+        }
+        
+        @keyframes progressAnimation {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .upload-section, .results {
+                padding: 30px 20px;
+            }
+            
+            .upload-area {
+                padding: 60px 20px;
+            }
+            
+            .info-table th,
+            .info-table td {
+                padding: 12px 15px;
+                font-size: 0.9em;
+            }
+            
+            .food-image {
+                max-width: 280px;
+                max-height: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍎 Food Analyzer Pro</h1>
+            <p>Advanced AI-Powered Nutritional Analysis System</p>
+        </div>
+        
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📸</div>
+                <h3>Drop your food image here or click to browse</h3>
+                <p>Supported formats: JPG, PNG, GIF, BMP, WebP (Max: 16MB)</p>
+                <input type="file" id="fileInput" class="file-input" accept="image/*">
+                <br><br>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    Choose File
+                </button>
+                <div class="file-info" id="fileInfo"></div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">Analyzing your food image...</div>
+                <div class="loading-subtext">Our AI is examining nutritional content, please wait</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results" id="results">
+            <div class="results-header">
+                <img id="foodImage" class="food-image" src="" alt="Food Image">
+                <button class="reset-btn" onclick="resetAnalysis()">🔄 Analyze Another Image</button>
+            </div>
+            
+            <table class="info-table" id="resultsTable">
+                <!-- Results will be populated here -->
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadSection = document.getElementById('uploadSection');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const resultsTable = document.getElementById('resultsTable');
+        const foodImage = document.getElementById('foodImage');
+        const fileInfo = document.getElementById('fileInfo');
+        const progressFill = document.getElementById('progressFill');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            if (!uploadArea.contains(e.relatedTarget)) {
+                uploadArea.classList.remove('dragover');
+            }
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                displayFileInfo(files[0]);
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                displayFileInfo(e.target.files[0]);
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function displayFileInfo(file) {
+            const fileSize = (file.size / 1024 / 1024).toFixed(2);
+            fileInfo.innerHTML = `
+                <strong>Selected:</strong> ${file.name}<br>
+                <strong>Size:</strong> ${fileSize} MB<br>
+                <strong>Type:</strong> ${file.type}
+            `;
+        }
+
+        function simulateProgress() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+                
+                if (progress >= 90) {
+                    clearInterval(interval);
+                }
+            }, 200);
+            
+            return interval;
+        }
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showError('Please select a valid image file.');
+                return;
+            }
+
+            if (file.size > 16 * 1024 * 1024) {
+                showError('File size too large. Maximum size is 16MB.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Show loading with progress simulation
+            uploadSection.style.display = 'none';
+            loading.style.display = 'block';
+            progressFill.style.width = '0%';
+            
+            const progressInterval = simulateProgress();
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    
+                    if (data.success) {
+                        displayResults(data.food_data, data.image_base64);
+                        showSuccess('Analysis completed successfully!');
+                    } else {
+                        showError(data.error || 'An error occurred while analyzing the image.');
+                        uploadSection.style.display = 'block';
+                    }
+                }, 500);
+            })
+            .catch(error => {
+                clearInterval(progressInterval);
+                loading.style.display = 'none';
+                console.error('Error:', error);
+                showError('Network error: ' + error.message);
+                uploadSection.style.display = 'block';
+            });
+        }
+
+        function displayResults(foodData, imageBase64) {
+            // Display the uploaded image
+            foodImage.src = imageBase64;
+
+            // Build the results table
+            let tableHTML = '';
+
+            // Basic Information
+            tableHTML += `
+                <tr><th colspan="2" class="section-title">🍽️ Basic Information</th></tr>
+                <tr><td><strong>Food Name</strong></td><td>${foodData.food_name || 'N/A'}</td></tr>
+                <tr><td><strong>Category</strong></td><td>${foodData.category || 'N/A'}</td></tr>
+                <tr><td><strong>Calories (per 100g)</strong></td><td>${foodData.calories_per_100g || 'N/A'}</td></tr>
+                <tr><td><strong>Serving Size</strong></td><td>${foodData.serving_size || 'N/A'}</td></tr>
+                <tr><td><strong>Glycemic Index</strong></td><td>${foodData.glycemic_index || 'N/A'}</td></tr>
+            `;
+
+            // Nutritional Information
+            if (foodData.nutritional_info) {
+                tableHTML += `<tr><th colspan="2" class="section-title">📊 Nutritional Information (per 100g)</th></tr>`;
+                Object.entries(foodData.nutritional_info).forEach(([key, value]) => {
+                    const label = key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ');
+                    const unit = key === 'sodium' ? 'mg' : 'g';
+                    const displayValue = value && value !== 'N/A' ? `${value}${unit}` : 'N/A';
+                    tableHTML += `<tr><td><strong>${label}</strong></td><td>${displayValue}</td></tr>`;
+                });
+            }
+
+            // Vitamins and Minerals
+            if (foodData.vitamins_minerals && Object.keys(foodData.vitamins_minerals).length > 0) {
+                tableHTML += `<tr><th colspan="2" class="section-title">💊 Vitamins & Minerals</th></tr>`;
+                Object.entries(foodData.vitamins_minerals).forEach(([key, value]) => {
+                    if (value && value !== 'N/A') {
+                        const label = key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ');
+                        tableHTML += `<tr><td><strong>${label}</strong></td><td>${value}</td></tr>`;
+                    }
+                });
+            }
+
+            // Health Benefits
+            if (foodData.health_benefits && foodData.health_benefits.length > 0) {
+                const benefitsList = foodData.health_benefits.map(benefit => `<li>${benefit}</li>`).join('');
+                tableHTML += `
+                    <tr><th colspan="2" class="section-title">🌟 Health Benefits</th></tr>
+                    <tr><td colspan="2"><ul>${benefitsList}</ul></td></tr>
+                `;
+            }
+
+            // Allergens
+            if (foodData.allergens && foodData.allergens.length > 0) {
+                const allergensList = foodData.allergens.join(', ');
+                tableHTML += `
+                    <tr><th colspan="2" class="section-title">⚠️ Potential Allergens</th></tr>
+                    <tr><td colspan="2">${allergensList}</td></tr>
+                `;
+            } else {
+                tableHTML += `
+                    <tr><th colspan="2" class="section-title">⚠️ Potential Allergens</th></tr>
+                    <tr><td colspan="2">No known common allergens identified</td></tr>
+                `;
+            }
+
+            // Dietary Restrictions
+            if (foodData.dietary_restrictions && foodData.dietary_restrictions.length > 0) {
+                const dietaryList = foodData.dietary_restrictions.join(', ');
+                tableHTML += `
+                    <tr><th colspan="2" class="section-title">🥗 Suitable For</th></tr>
+                    <tr><td colspan="2">${dietaryList}</td></tr>
+                `;
+            }
+
+            // Storage Tips
+            if (foodData.storage_tips && foodData.storage_tips !== 'N/A') {
+                tableHTML += `
+                    <tr><th colspan="2" class="section-title">🏪 Storage Tips</th></tr>
+                    <tr><td colspan="2">${foodData.storage_tips}</td></tr>
+                `;
+            }
+
+            // Preparation Suggestions
+            if (foodData.preparation_suggestions && foodData.preparation_suggestions.length > 0) {
+                const prepList = foodData.preparation_suggestions.map(prep => `<li>${prep}</li>`).join('');
+                tableHTML += `
+                    <tr><th colspan="2" class="section-title">👨‍🍳 Preparation Suggestions</th></tr>
+                    <tr><td colspan="2"><ul>${prepList}</ul></td></tr>
+                `;
+            }
+
+            resultsTable.innerHTML = tableHTML;
+            results.style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.innerHTML = `<strong>Error:</strong> ${message}`;
+            
+            const uploadSection = document.getElementById('uploadSection');
+            uploadSection.insertBefore(errorDiv, uploadSection.firstChild);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.innerHTML = `<strong>Success:</strong> ${message}`;
+            
+            const results = document.getElementById('results');
+            results.insertBefore(successDiv, results.firstChild);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        function resetAnalysis() {
+            results.style.display = 'none';
+            uploadSection.style.display = 'block';
+            fileInput.value = '';
+            fileInfo.innerHTML = '';
+            progressFill.style.width = '0%';
+        }
+
+        // Add some loading text variations
+        const loadingTexts = [
+            "Analyzing nutritional content...",
+            "Identifying food components...",
+            "Calculating health benefits...",
+            "Processing dietary information...",
+            "Finalizing analysis..."
+        ];
+
+        let textIndex = 0;
+        setInterval(() => {
+            const loadingTextElement = document.querySelector('.loading-text');
+            if (loading.style.display === 'block') {
+                loadingTextElement.textContent = loadingTexts[textIndex];
+                textIndex = (textIndex + 1) % loadingTexts.length;
+            }
+        }, 1500);
+    </script>
+</body>
+</html>
